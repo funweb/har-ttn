@@ -1,0 +1,2 @@
+model_checkpoint_path: "2_gaussians_github_ttn"
+all_model_checkpoint_paths: "2_gaussians_github_ttn"
