@@ -3,7 +3,7 @@ import numpy as np
 import ttn
 
 seq_len = 100
-num_classes = 2
+num_classes = 3  # TODO: 更改类别数量
 
 
 def weight_variable_zero_init(shape, name):

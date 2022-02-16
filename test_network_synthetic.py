@@ -6,11 +6,12 @@ import scipy.io
 
 batch_size = 1
 seq_len = 100
-num_classes = 2
+num_classes = 3  # TODO: 类别数目
 
 test_data = scipy.io.loadmat('synthetic_data_test_2_gaussians.mat')['test_data']
 test_label = scipy.io.loadmat('synthetic_data_test_2_gaussians.mat')['test_label']
 
+test_label = np.pad(test_label,((0,0), (1,0)),'constant',constant_values = (0,0))  #constant_values表示填充值，且(before，after)的填充值等于（0,0）
 
 def placeholder_inputs(batch_size):
     x_placeholder = tf.placeholder(tf.float32, shape=(batch_size, seq_len))

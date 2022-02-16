@@ -9,12 +9,13 @@ learning_rate_1 = 0.0001
 num_train = 8000
 numBatches = num_train / batch_size
 maxIters = 10000
-num_classes = 2
+num_classes = 3  # 类别数量, 根据需要设置
 seq_len = 100
 
 train_data = scipy.io.loadmat('synthetic_data_train_2_gaussians.mat')['train_data']
 train_label = scipy.io.loadmat('synthetic_data_train_2_gaussians.mat')['train_label']
 
+train_label = np.pad(train_label,((0,0), (1,0)),'constant',constant_values = (0,0))  #constant_values表示填充值，且(before，after)的填充值等于（0,0）
 
 def placeholder_inputs(batch_size):
     x_placeholder = tf.placeholder(tf.float32, shape=(batch_size, seq_len))
