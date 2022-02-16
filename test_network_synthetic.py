@@ -4,27 +4,27 @@ import network_ttn_synthetic as network
 import os.path
 import scipy.io
 
+from configuration import configure
+from configuration.general import placeholder_inputs
+
 batch_size = 1
-seq_len = 100
-num_classes = 3  # TODO: 类别数目
+seq_len = configure.parameters_dict["seq_len"]
+num_classes = configure.parameters_dict["num_classes"]  # TODO: 类别数目
 
 test_data = scipy.io.loadmat('synthetic_data_test_2_gaussians.mat')['test_data']
 test_label = scipy.io.loadmat('synthetic_data_test_2_gaussians.mat')['test_label']
 
 test_label = np.pad(test_label,((0,0), (1,0)),'constant',constant_values = (0,0))  #constant_values表示填充值，且(before，after)的填充值等于（0,0）
 
-def placeholder_inputs(batch_size):
-    x_placeholder = tf.placeholder(tf.float32, shape=(batch_size, seq_len))
-    y_placeholder = tf.placeholder(tf.float32, shape=(batch_size, num_classes))
+# TODO: load data
 
-    return x_placeholder, y_placeholder
 
 
 with tf.Graph().as_default():
     checkpointPath = './2_gaussians_github_ttn'
 
-    x_placeholder, y_placeholder = placeholder_inputs(batch_size)
-    output, sequence_unwarped, gamma, sequence1 = network.mapping(x_placeholder, batch_size)
+    x_placeholder, y_placeholder, _ = placeholder_inputs(batch_size,  configure.parameters_dict["num_classes"], configure.parameters_dict["seq_len"])  # 类别数应该改为载入数据的格式
+    output, sequence_unwarped, gamma, sequence1 = network.mapping(x_placeholder, batch_size, configure.parameters_dict["seq_len"])
     correct_prediction = tf.equal(tf.argmax(output, 1), tf.argmax(y_placeholder, 1))
 
     saver = tf.train.Saver()

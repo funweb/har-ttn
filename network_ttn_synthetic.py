@@ -2,8 +2,9 @@ import tensorflow as tf
 import numpy as np
 import ttn
 
-seq_len = 100
-num_classes = 3  # TODO: 更改类别数量
+from configuration import configure
+
+num_classes = configure.parameters_dict["num_classes"]   # TODO: 更改类别数量
 
 
 def weight_variable_zero_init(shape, name):
@@ -25,7 +26,7 @@ def conv1d(x, W, stride):
     return tf.nn.conv1d(x, W, stride=stride, padding='SAME')
 
 
-def mapping(sequence, batch_size):
+def mapping(sequence, batch_size, seq_len=2000):
     # Normalizing the sequence
     sequence1 = sequence - tf.tile(tf.reduce_mean(sequence, 1, keep_dims=True), [1, seq_len])
     sequence_norm = tf.sqrt(tf.reduce_sum(tf.square(sequence1), 1, keep_dims=True))
