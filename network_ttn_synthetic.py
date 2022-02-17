@@ -44,10 +44,10 @@ def mapping(sequence, batch_size, seq_len=2000):
         bg1 = bias_variable([num_channels], 'bg1')
         hg1 = tf.nn.tanh(conv1d(sequence1, wg1, 1) + bg1)
 
-        hg2 = tf.reshape(hg1, [batch_size, 100 * num_channels])
+        hg2 = tf.reshape(hg1, [batch_size, seq_len * num_channels])
 
-        W_fc1g = weight_variable_zero_init([100 * num_channels, 99], 'W_fc1g')
-        b_fc1g = bias_variable([99], 'b_fc1g')
+        W_fc1g = weight_variable_zero_init([seq_len * num_channels, seq_len-1], 'W_fc1g')
+        b_fc1g = bias_variable([seq_len-1], 'b_fc1g')
         out1g = tf.nn.tanh(tf.nn.dropout(tf.matmul(hg2, W_fc1g) + b_fc1g, keep_prob=0.8))
 
     # Constraint satisfaction layers
@@ -67,8 +67,8 @@ def mapping(sequence, batch_size, seq_len=2000):
 
     # Classifier
     with tf.variable_scope('classifier'):
-        W_fc1 = weight_variable([100, num_classes], 'W_fc1')
-        b_fc1 = bias_variable([num_classes], 'b_fc1')
+        W_fc1 = weight_variable([seq_len, configure.parameters_dict["num_classes"]], 'W_fc1')
+        b_fc1 = bias_variable([configure.parameters_dict["num_classes"]], 'b_fc1')
         logits = tf.matmul(sequence_warped, W_fc1) + b_fc1
 
     return logits, sequence_warped, gamma, sequence1
