@@ -1,3 +1,5 @@
+import shutil
+
 import tensorflow as tf
 import numpy as np
 import network_ttn_synthetic as network
@@ -27,12 +29,15 @@ def train_ttn(dict_cus):
 
         train_data = x_train
         train_label = y_train  # 需要为 onehot 编码格式
+        test_data = x_test
+        test_label = y_test  # 需要为 onehot 编码格式
+
         num_classes = nb_classes
 
         configure.parameters_dict["num_classes"] = num_classes
         num_train = configure.parameters_dict["num_train"] = len(train_data)
 
-        general.Merge(configure.parameters_dict, dict_cus)
+        configure.parameters_dict = general.Merge(configure.parameters_dict, dict_cus)  # TODO: 不确定对不对
 
         batch_size = configure.parameters_dict["batch_size"]
         learning_rate_1 = configure.parameters_dict["learning_rate_1"]
@@ -44,6 +49,7 @@ def train_ttn(dict_cus):
 
         with tf.Graph().as_default():
             x_placeholder, y_placeholder, learning_rate_placeholder = placeholder_inputs(batch_size, num_classes, configure.parameters_dict["seq_len"])
+
             output, sequence_unwarped, gamma, sequence1 = network.mapping(x_placeholder, batch_size, configure.parameters_dict["seq_len"])
             loss = network.loss(output, y_placeholder)
 
@@ -64,7 +70,8 @@ def train_ttn(dict_cus):
             sess.run(init)
 
             batchIdx = 0
-            for step in range(maxIters*numBatches):
+            c_loss = 9999  # 初始化 loss
+            for step in range(maxIters*numBatches+1):
                 batchIdx = batchIdx % numBatches
 
                 if batchIdx == 0:
@@ -88,18 +95,28 @@ def train_ttn(dict_cus):
                     print("step: {}/{}, loss_value: {}".format(step, maxIters*numBatches, loss_value))
 
                 batchIdx = batchIdx + 1
-                if step in np.linspace(0, maxIters*numBatches, 11):
-                    weights_dir = os.path.join("weights")
-                    weights_name = os.path.join(weights_dir, "%s_%s_gaussians_github_ttn" % (str(k), str(step)))
+                if step in np.linspace(0, maxIters*numBatches, 6):
+                    # weights_dir = os.path.join("weights")
+                    weights_dir = general.getWeightsDir(configure.parameters_dict, k)
                     general.create_folder(weights_dir)
+                    weights_name = os.path.join(weights_dir, "%s_%s_gaussians_github_ttn_%s" % (str(k), str(step), str(loss_value)))
                     saver.save(sess, weights_name)
                     print(general.colorstr("model saved at: {}".format(weights_name)))
+
+                    if loss_value < c_loss:
+                        weights_name = os.path.join(weights_dir, "%s_best_model" % (str(k)))
+                        saver.save(sess, weights_name)
+                        print(general.colorstr("model saved at: {}".format(weights_name)))
+
+            weights_name = os.path.join(weights_dir, "%s_last_model" % (str(k)))
+            saver.save(sess, weights_name)
+            print(general.colorstr("model saved at: {}".format(os.path.join(weights_dir, "%s_last_model" % (str(k))))))
 
 
 if __name__ == '__main__':
     dict_cus = {
         "batch_size": 32,
-        "maxIters": 100000,
+        "maxIters": 2000,  # 100000
         "seq_len": 1024,
         "distance_int": 9999,
         "dataset_name": "cairo",

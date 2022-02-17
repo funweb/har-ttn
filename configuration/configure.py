@@ -5,6 +5,8 @@ parameters_dict = {
     "database_dir": "../datasets/casas",
     "ksplit": 3,
 
+    "method_name": "ttn",
+
     "num_classes": "",  #TODO: 类别数量, 根据需要设置
     "num_train": "",
     "batch_size": 32,

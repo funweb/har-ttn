@@ -69,9 +69,9 @@ def load_data(data_name, cutdatadir, data_lenght=2000, k=2):
 import tensorflow as tf
 
 def placeholder_inputs(batch_size, num_classes, seq_len=2000):
-    x_placeholder = tf.placeholder(tf.float32, shape=(batch_size, seq_len), name="x_placeholder")
-    y_placeholder = tf.placeholder(tf.float32, shape=(batch_size, num_classes), name="y_placeholder")
-    learning_rate_placeholder = tf.placeholder(tf.float32, shape=(), name="learning_rate_placeholder")
+    x_placeholder = tf.placeholder(tf.float32, shape=(batch_size, seq_len))
+    y_placeholder = tf.placeholder(tf.float32, shape=(batch_size, num_classes))
+    learning_rate_placeholder = tf.placeholder(tf.float32, shape=())
     return x_placeholder, y_placeholder, learning_rate_placeholder
 
 
@@ -179,4 +179,18 @@ def colorstr(*input):
     return ''.join(colors[x] for x in args) + f'{string}' + colors['end']
 
 
+def getIdentify(dict_cus):
+    identify = "{}_{}_{}".format(str(dict_cus["maxIters"]), str(dict_cus["batch_size"]), str(dict_cus["seq_len"]))
+    return identify
 
+
+def getWeightsDir(dict_cus, k):
+    identify = getIdentify(dict_cus)
+    weights_dir = os.path.join(dict_cus["database_dir"],
+                 "results",
+                 dict_cus["method_name"],
+                 dict_cus["dataset_name"],
+                 str(dict_cus["distance_int"]),
+                 identify,
+                 str(k))
+    return weights_dir

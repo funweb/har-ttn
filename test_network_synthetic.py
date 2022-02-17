@@ -24,20 +24,11 @@ def test_ttn(dict_cus):
             dict_cus["seq_len"],
             k)
 
-        train_data = x_train
-        train_label = y_train  # 需要为 onehot 编码格式
         num_classes = nb_classes
 
+        configure.parameters_dict["num_train"] = 0
         configure.parameters_dict["num_classes"] = num_classes
-        num_train = configure.parameters_dict["num_train"] = len(train_data)
-
         general.Merge(configure.parameters_dict, dict_cus)
-
-        batch_size = configure.parameters_dict["batch_size"]
-        learning_rate_1 = configure.parameters_dict["learning_rate_1"]
-        numBatches = int(num_train / batch_size)
-        maxIters = configure.parameters_dict["maxIters"]
-        seq_len = configure.parameters_dict["seq_len"]
 
         batch_size = 1
         seq_len = dict_cus["seq_len"]
@@ -46,14 +37,14 @@ def test_ttn(dict_cus):
         num_classes = nb_classes
         test_data = x_train
         test_label = y_train
-        test_data = x_test
-        test_label = y_test
+        # test_data = x_test
+        # test_label = y_test
 
         # test_data = scipy.io.loadmat('synthetic_data_test_2_gaussians.mat')['test_data']
         # test_label = scipy.io.loadmat('synthetic_data_test_2_gaussians.mat')['test_label']
 
         with tf.Graph().as_default():
-            checkpointPath = './2_gaussians_github_ttn'
+            checkpointPath = 'weights/0_2160000_gaussians_github_ttn'  # TODO: 更改模型名称
 
             x_placeholder, y_placeholder, _ = placeholder_inputs(batch_size,  configure.parameters_dict["num_classes"], configure.parameters_dict["seq_len"])  # 类别数应该改为载入数据的格式
             output, sequence_unwarped, gamma, sequence1 = network.mapping(x_placeholder, batch_size, configure.parameters_dict["seq_len"])
@@ -97,7 +88,7 @@ if __name__ == '__main__':
     dict_cus = {
         "batch_size": 32,
         "maxIters": 1000,
-        "seq_len": 512,
+        "seq_len": 1024,
         "distance_int": 9999,
         "dataset_name": "cairo",
     }
