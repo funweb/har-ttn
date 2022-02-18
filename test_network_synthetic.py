@@ -35,16 +35,22 @@ def test_ttn(dict_cus):
 
 
         num_classes = nb_classes
-        test_data = x_train
-        test_label = y_train
-        # test_data = x_test
-        # test_label = y_test
+        # test_data = x_train
+        # test_label = y_train
+        test_data = x_test
+        test_label = y_test
 
         # test_data = scipy.io.loadmat('synthetic_data_test_2_gaussians.mat')['test_data']
         # test_label = scipy.io.loadmat('synthetic_data_test_2_gaussians.mat')['test_label']
 
+        weights_dir = general.getWeightsDir(configure.parameters_dict, k)
+        checkpointPath = os.path.join(weights_dir, "%s_best_model" % (str(k)))
+
+        assert os.path.exists(checkpointPath + ".index"), "请确认 iter/BS/len 等参数正确: {}".format(checkpointPath)
+
         with tf.Graph().as_default():
-            checkpointPath = 'weights/0_2160000_gaussians_github_ttn'  # TODO: 更改模型名称
+
+            # checkpointPath = 'weights/0_2160000_gaussians_github_ttn'  # TODO: 更改模型名称
 
             x_placeholder, y_placeholder, _ = placeholder_inputs(batch_size,  configure.parameters_dict["num_classes"], configure.parameters_dict["seq_len"])  # 类别数应该改为载入数据的格式
             output, sequence_unwarped, gamma, sequence1 = network.mapping(x_placeholder, batch_size, configure.parameters_dict["seq_len"])
@@ -74,9 +80,23 @@ def test_ttn(dict_cus):
 
         accuracy = correct / float(test_data.shape[0])
 
-        scipy.io.savemat('./ttn_output_github.mat', mdict={'ttn_output': ttn_output})
-        scipy.io.savemat('./generated_gamma_github.mat', mdict={'generated_gamma': generated_gamma})
-        scipy.io.savemat('./sequence_normalized_github.mat', mdict={'sequence_normalized': sequence_normalized})
+        # scipy.io.savemat('./ttn_output_github.mat', mdict={'ttn_output': ttn_output})
+        # scipy.io.savemat('./generated_gamma_github.mat', mdict={'generated_gamma': generated_gamma})
+        # scipy.io.savemat('./sequence_normalized_github.mat', mdict={'sequence_normalized': sequence_normalized})
+
+        file_name = os.path.join(weights_dir, "%s_ttn_output_github.txt" % (str(k)))
+        np.savetxt(file_name, np.array(ttn_output, dtype=np.float), delimiter=', ')
+        print(general.colorstr("log saved at: {}".format(file_name)))
+
+        file_name = os.path.join(weights_dir, "%s_generated_gamma_github.txt" % (str(k)))
+        np.savetxt(file_name, np.array(generated_gamma, dtype=np.float), delimiter=', ')
+        print(general.colorstr("log saved at: {}".format(file_name)))
+
+        file_name = os.path.join(weights_dir, "%s_sequence_normalized_github.txt" % (str(k)))
+        np.savetxt(file_name, np.array(sequence_normalized, dtype=np.float), delimiter=', ')
+        print(general.colorstr("log saved at: {}".format(file_name)))
+
+
 
         print('Accuracy:')
         print(accuracy)
@@ -87,7 +107,7 @@ def test_ttn(dict_cus):
 if __name__ == '__main__':
     dict_cus = {
         "batch_size": 32,
-        "maxIters": 1000,
+        "maxIters": 20,
         "seq_len": 1024,
         "distance_int": 9999,
         "dataset_name": "cairo",

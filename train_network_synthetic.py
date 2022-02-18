@@ -71,6 +71,8 @@ def train_ttn(dict_cus):
 
             batchIdx = 0
             c_loss = 9999  # 初始化 loss
+            train_loss = []
+
             for step in range(maxIters*numBatches+1):
                 batchIdx = batchIdx % numBatches
 
@@ -87,18 +89,19 @@ def train_ttn(dict_cus):
                                          feed_dict={x_placeholder: train_data[trainIdx, :],
                                                     y_placeholder: train_label[trainIdx, :],
                                                     learning_rate_placeholder: learning_rate_1})
+                train_loss.append(loss_value)
 
                 if step % 1000 == 0:
                 #     print('---------------------------------')
                 #     print(step)
                 #     print(loss_value)
-                    print("step: {}/{}, loss_value: {}".format(step, maxIters*numBatches, loss_value))
+                    print("k: {}\tstep: {}/{}, loss_value: {}".format(k, step, maxIters*numBatches, loss_value))
 
                 batchIdx = batchIdx + 1
                 if step in np.linspace(0, maxIters*numBatches, 6):
                     # weights_dir = os.path.join("weights")
                     weights_dir = general.getWeightsDir(configure.parameters_dict, k)
-                    general.create_folder(weights_dir)
+                    general.create_folder(weights_dir, remake=True)
                     weights_name = os.path.join(weights_dir, "%s_%s_gaussians_github_ttn_%s" % (str(k), str(step), str(loss_value)))
                     saver.save(sess, weights_name)
                     print(general.colorstr("model saved at: {}".format(weights_name)))
@@ -110,13 +113,15 @@ def train_ttn(dict_cus):
 
             weights_name = os.path.join(weights_dir, "%s_last_model" % (str(k)))
             saver.save(sess, weights_name)
-            print(general.colorstr("model saved at: {}".format(os.path.join(weights_dir, "%s_last_model" % (str(k))))))
-
+            print(general.colorstr("model saved at: {}".format(weights_name)))
+            log_name = os.path.join(weights_dir, "%s_train_loss.txt" % (str(k)))
+            np.savetxt(log_name, np.array(train_loss, dtype=np.float), delimiter=', ')
+            print(general.colorstr("log saved at: {}".format(log_name)))
 
 if __name__ == '__main__':
     dict_cus = {
         "batch_size": 32,
-        "maxIters": 2000,  # 100000
+        "maxIters": 20,  # 100000
         "seq_len": 1024,
         "distance_int": 9999,
         "dataset_name": "cairo",
