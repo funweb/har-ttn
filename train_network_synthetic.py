@@ -21,7 +21,7 @@ def train_ttn(dict_cus):
                            'npy')
     cutdatadir = os.path.join(datadir, str(configure.parameters_dict["ksplit"]))
 
-    val_acc_dict = {}
+    val_acc_dict = {"0": {}, "1": {}, "2": {}}
 
     for k in range(configure.parameters_dict["ksplit"]):
         # load data
@@ -104,7 +104,7 @@ def train_ttn(dict_cus):
                     print("k: {}\tstep: {}/{}, loss_value: {}".format(k, step, maxIters * numBatches, loss_value))
 
                 batchIdx = batchIdx + 1
-                if step in np.linspace(0, maxIters * numBatches, 6):
+                if step in np.linspace(0, maxIters * numBatches, 21):
                     # weights_dir = os.path.join("weights")
                     weights_dir = general.getWeightsDir(configure.parameters_dict, k)
                     general.create_folder(weights_dir, remake=True)
@@ -114,12 +114,12 @@ def train_ttn(dict_cus):
                     print(general.colorstr("model saved at: {}".format(weights_name)))
 
                     val_acc = test_ttn(dict_cus, k, weights_name="%s_%s_gaussians_github_ttn_%s" % (
-                    str(k), str(step), str(loss_value)))
-                    val_acc_dict.update({"%s" % (str(k)):
-                                            {
-                                                "%s" % (str(step)): val_acc
-                                            }
-                                        })
+                        str(k), str(step), str(loss_value)))
+                    val_acc_dict[str(k)].update(
+                        {
+                            "%s" % (str(step)): val_acc
+                        }
+                    )
 
                     if loss_value < c_loss:
                         weights_name = os.path.join(weights_dir, "%s_best_model" % (str(k)))
@@ -127,22 +127,22 @@ def train_ttn(dict_cus):
                         print(general.colorstr("model saved at: {}".format(weights_name)))
 
                         val_acc = test_ttn(dict_cus, k, weights_name="%s_best_model" % (str(k)))
-                        val_acc_dict.update({"%s" % (str(k)):
-                                                {
-                                                    "best": val_acc
-                                                }
-                                            })
+                        val_acc_dict[str(k)].update(
+                            {
+                                "best": val_acc
+                            }
+                        )
 
             weights_name = os.path.join(weights_dir, "%s_last_model" % (str(k)))
             saver.save(sess, weights_name)
             print(general.colorstr("model saved at: {}".format(weights_name)))
 
             val_acc = test_ttn(dict_cus, k, weights_name="%s_last_model" % (str(k)))
-            val_acc_dict.update({"%s" % (str(k)):
-                                    {
-                                        "last": val_acc
-                                    }
-                                })
+            val_acc_dict[str(k)].update(
+                {
+                    "last": val_acc
+                }
+            )
 
             print(val_acc_dict)
             val_acc_json_name = os.path.join(weights_dir, "%s_val_acc.json" % (str(k)))
@@ -156,7 +156,6 @@ def train_ttn(dict_cus):
 
 
 if __name__ == '__main__':
-
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     # 默认为0：输出所有log信息
     # 设置为1：进一步屏蔽INFO信息
@@ -165,7 +164,7 @@ if __name__ == '__main__':
 
     dict_cus = {
         "batch_size": 32,
-        "maxIters": 100000,  # 100000
+        "maxIters": 2000,  # 100000
         "seq_len": 1024,
         "distance_int": 9999,
         "dataset_name": "cairo",
