@@ -154,6 +154,10 @@ def train_ttn(dict_cus):
             np.savetxt(log_name, np.array(train_loss, dtype=np.float), delimiter=', ')
             print(general.colorstr("log saved at: {}".format(log_name)))
 
+            print("0:{}_{}\n1:{}_{}\n2:{}_{}\n".format(val_acc_dict["0"]["best"], val_acc_dict["0"]["last"],
+                                                       val_acc_dict["1"]["best"], val_acc_dict["1"]["last"],
+                                                       val_acc_dict["2"]["best"], val_acc_dict["2"]["last"]))
+
 
 if __name__ == '__main__':
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
