@@ -170,8 +170,8 @@ if __name__ == '__main__':
     dict_cus = {
         "batch_size": 32,
         "maxIters": 2000,  # 100000
-        "seq_len": 1024,
+        "seq_len": 64,
         "distance_int": 9999,
-        "dataset_name": "cairo",
+        "dataset_name": "kyoto11",
     }
     train_ttn(dict_cus)

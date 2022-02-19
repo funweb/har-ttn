@@ -75,7 +75,7 @@ def mapping(sequence, batch_size, seq_len=2000):
 
 
 def loss(logits, labels):
-    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))  # 原代码中出现 nan
+    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=labels))  # 原代码中出现 nan
 
     # y_ls = tf.nn.log_softmax(logits)
     # cross_entropy = -tf.reduce_mean(tf.reduce_sum(labels * y_ls, reduction_indices=[1]))  # 这两句话并不能解决问题
