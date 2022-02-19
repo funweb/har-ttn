@@ -153,7 +153,7 @@ def train_ttn(dict_cus):
             np.savetxt(log_name, np.array(train_loss, dtype=np.float), delimiter=', ')
             print(general.colorstr("log saved at: {}".format(log_name)))
 
-    print(val_acc_dict)
+    # print(val_acc_dict)
     print("\n\nk:\tbest\tlast\n0:\t{}\t{}\n1:\t{}\t{}\n2:\t{}\t{}\n".format(
                 val_acc_dict["0"]["best"], val_acc_dict["0"]["last"],
                 val_acc_dict["1"]["best"], val_acc_dict["1"]["last"],
