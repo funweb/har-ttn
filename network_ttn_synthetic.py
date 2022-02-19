@@ -75,16 +75,14 @@ def mapping(sequence, batch_size, seq_len=2000):
 
 
 def loss(logits, labels):
-    # cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))  # 原代码中出现 nan
+    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))  # 原代码中出现 nan
 
     # y_ls = tf.nn.log_softmax(logits)
     # cross_entropy = -tf.reduce_mean(tf.reduce_sum(labels * y_ls, reduction_indices=[1]))  # 这两句话并不能解决问题
 
-    eps = 1e-10
-    y_clip = tf.clip_by_value(logits, eps, 1.0 - eps)
-    # y_clip = tf.clip_by_value(y_pred, eps, 1.0)
-    # y_clip = y_pred + eps
-    cross_entropy = -tf.reduce_mean(tf.reduce_sum(labels * tf.log(y_clip), reduction_indices=[1]))  # 通过截断， 避免 nan 的问题
+    # eps = 1e-10
+    # y_clip = tf.clip_by_value(logits, eps, 1.0 - eps)
+    # cross_entropy = -tf.reduce_mean(tf.reduce_sum(labels * tf.log(y_clip), reduction_indices=[1]))  # 通过截断， 避免 nan 的问题。。。梯度成为 0 了。。。
 
     return cross_entropy
 
