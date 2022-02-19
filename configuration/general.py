@@ -40,10 +40,10 @@ def load_data(data_name, cutdatadir, data_lenght=2000, k=2):
     data_labels_path = os.path.join(cutdatadir, data_name + '-labels.npy')
     dictActivities_y = np.load(data_labels_path, allow_pickle=True).item()
 
-    # x_range = len(np.unique(np.concatenate((x_train, x_test), axis=0)))  # 一共有多少种状态
-    # x_train = x_train / (x_range + 1)  # 归一化处理  # TODO: 感觉没必要
+    x_range = len(np.unique(np.concatenate((x_train, x_test), axis=0)))  # 一共有多少种状态
+    x_train = x_train / (x_range + 1)  # 归一化处理
     x_train = x_train[:, -data_lenght:]  # 控制数据长度
-    # x_test = x_test / (x_range + 1)
+    x_test = x_test / (x_range + 1)
     x_test = x_test[:, -data_lenght:]
 
     # ---
