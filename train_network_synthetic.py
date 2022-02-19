@@ -80,6 +80,11 @@ def train_ttn(dict_cus):
             train_loss = []
 
             for step in range(maxIters * numBatches + 1):
+
+                print("----11")
+                tf.print(output)
+                print("----")
+
                 batchIdx = batchIdx % numBatches
 
                 if batchIdx == 0:
@@ -97,7 +102,7 @@ def train_ttn(dict_cus):
                                                     learning_rate_placeholder: learning_rate_1})
                 train_loss.append(loss_value)
 
-                if step % 1000 == 0:
+                if step % 1 == 0:  # #TODO：1000
                     #     print('---------------------------------')
                     #     print(step)
                     #     print(loss_value)
@@ -170,8 +175,8 @@ if __name__ == '__main__':
     dict_cus = {
         "batch_size": 32,
         "maxIters": 2000,  # 100000
-        "seq_len": 64,
-        "distance_int": 9999,
-        "dataset_name": "kyoto11",
+        "seq_len": 2000,
+        "distance_int": 999,
+        "dataset_name": "kyoto7",
     }
     train_ttn(dict_cus)

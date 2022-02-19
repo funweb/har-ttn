@@ -14,6 +14,7 @@ def weight_variable_zero_init(shape, name):
 
 def weight_variable(shape, name):
     w = tf.get_variable(name, shape=shape, initializer=tf.contrib.layers.xavier_initializer())
+    # w = tf.get_variable(name, shape=shape, initializer=tf.constant_initializer(0.1))
     return w
 
 
@@ -75,20 +76,24 @@ def mapping(sequence, batch_size, seq_len=2000):
 
 
 def loss(logits, labels):
-    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=labels))  # 原代码中出现 nan
 
     # y_ls = tf.nn.log_softmax(logits)
-    # cross_entropy = -tf.reduce_mean(tf.reduce_sum(labels * y_ls, reduction_indices=[1]))  # 这两句话并不能解决问题
+    # cross_entropy = -tf.reduce_mean(tf.reduce_sum(labels * y_ls, reduction_indices=[0]))  # 这两句话并不能解决问题
 
-    # eps = 1e-10
-    # y_clip = tf.clip_by_value(logits, eps, 1.0 - eps)
+    # eps = 1e-2
+    # logits = tf.clip_by_value(logits, eps, 1.0 - eps)
+    # logits = tf.clip_by_value(logits, -100.0, 100.0)
+    # labels = tf.clip_by_value(labels, -100.0, 100.0)
     # cross_entropy = -tf.reduce_mean(tf.reduce_sum(labels * tf.log(y_clip), reduction_indices=[1]))  # 通过截断， 避免 nan 的问题。。。梯度成为 0 了。。。
+    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=labels))  # 原代码中出现 nan
 
     return cross_entropy
 
 
 def training(loss, learning_rate, var_list):
     optimizer = tf.train.AdamOptimizer(learning_rate)
+    # optimizer = tf.train.GradientDescentOptimizer(learning_rate)
     global_step = tf.Variable(0, name='global_step', trainable=False)
+
     train_op = optimizer.minimize(loss, global_step=global_step, var_list=var_list)
     return train_op

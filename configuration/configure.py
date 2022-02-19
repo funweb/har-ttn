@@ -1,5 +1,5 @@
 parameters_dict = {
-    "learning_rate_1": 0.0001,
+    "learning_rate_1": 0.01,  # 0.0001
     # "numBatches": num_train / batch_size,
     "dataset_names": ["cairo", "milan", "kyoto7", "kyoto8", "kyoto11"],
     "database_dir": "../datasets/casas",
