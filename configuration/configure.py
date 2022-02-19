@@ -15,3 +15,10 @@ parameters_dict = {
     "distance_int": "",
     "dataset_name": "",
 }
+
+# jupyter
+JUPYTER_TOKEN = {
+    "token_lists": ["root",  # win
+                    "8786ba7fd6db486eb13a6e4e79d5951a",  # 7920
+                    "ef6c4f2832454a65a1d9c2c7551af431"]  # 5810
+}

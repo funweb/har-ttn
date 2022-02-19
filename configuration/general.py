@@ -3,8 +3,10 @@ import shutil
 import time
 
 import numpy as np
+import pandas as pd
 from sklearn import preprocessing
 import tensorflow as tf
+
 
 def load_data(data_name, cutdatadir, data_lenght=2000, k=2):
     """
@@ -68,13 +70,12 @@ def load_data(data_name, cutdatadir, data_lenght=2000, k=2):
 
 import tensorflow as tf
 
+
 def placeholder_inputs(batch_size, num_classes, seq_len=2000):
     x_placeholder = tf.placeholder(tf.float32, shape=(batch_size, seq_len))
     y_placeholder = tf.placeholder(tf.float32, shape=(batch_size, num_classes))
     learning_rate_placeholder = tf.placeholder(tf.float32, shape=())
     return x_placeholder, y_placeholder, learning_rate_placeholder
-
-
 
 
 def create_folder(path='./new', remake=False):
@@ -187,10 +188,114 @@ def getIdentify(dict_cus):
 def getWeightsDir(dict_cus, k):
     identify = getIdentify(dict_cus)
     weights_dir = os.path.join(dict_cus["database_dir"],
-                 "results",
-                 dict_cus["method_name"],
-                 dict_cus["dataset_name"],
-                 str(dict_cus["distance_int"]),
-                 identify,
-                 str(k))
+                               "results",
+                               dict_cus["method_name"],
+                               dict_cus["dataset_name"],
+                               identify,
+                               str(dict_cus["distance_int"]),
+                               str(k))
     return weights_dir
+
+
+def showResult(weights_dir):
+    """
+    eg.
+        from configuration import configure
+        dict_cus["num_classes"] = 0
+        dict_cus["num_train"] = 0
+        configure.parameters_dict = general.Merge(configure.parameters_dict, dict_cus)
+        weights_dir = general.getWeightsDir(configure.parameters_dict, 2)
+        print(general.showResult(weights_dir))
+    Args:
+        weights_dir:
+
+    Returns:
+
+    """
+    op_dir = os.path.join(weights_dir, "..", "..")  # 后面有 距离 + k, 因为，前期将3折交叉逐步完善到第3折， 因此仅仅需要嵌套一次循环
+
+    total_dict = {
+        "9999": "",
+        "999": "",
+        "1": "",
+        "2": "",
+        "3": "",
+        "4": "",
+        "5": "",
+    }
+    for distant in ["9999", "999", "1", "2", "3", "4", "5"]:
+        temp_dict = {
+            "best_0": "",
+            "best_1": "",
+            "best_2": "",
+            "best_mean": "",
+            "best_std": "",
+            "last_0": "",
+            "last_1": "",
+            "last_2": "",
+            "last_mean": "",
+            "last_std": ""
+        }
+
+        sub_json_path = os.path.join(op_dir, distant, "2", "2_val_acc.json")
+        with open(sub_json_path, "r", encoding="utf-8", ) as fr:
+            result_data = json.load(fr)
+            temp_dict["best_0"] = result_data["0"]["best"]
+            temp_dict["best_1"] = result_data["1"]["best"]
+            temp_dict["best_2"] = result_data["2"]["best"]
+            temp_dict["best_mean"] = np.mean([temp_dict["best_0"], temp_dict["best_1"], temp_dict["best_2"]])
+            temp_dict["best_std"] = np.std([temp_dict["best_0"], temp_dict["best_1"], temp_dict["best_2"]])
+
+            temp_dict["last_0"] = result_data["0"]["last"]
+            temp_dict["last_1"] = result_data["1"]["last"]
+            temp_dict["last_2"] = result_data["2"]["last"]
+            temp_dict["last_mean"] = np.mean([temp_dict["last_0"], temp_dict["last_1"], temp_dict["last_2"]])
+            temp_dict["last_std"] = np.std([temp_dict["last_0"], temp_dict["last_1"], temp_dict["last_2"]])
+
+        total_dict[distant] = temp_dict
+
+    # index_list = ["best_0", "best_1", "best_2", "best_mean", "best_std"] + \
+    #              ["last_0", "last_1", "last_2", "last_mean", "last_std"]
+    # df = pd.DataFrame(index=index_list)
+    df = pd.DataFrame.from_dict(total_dict, orient='columns')
+    return df
+
+
+def getAvailableId(type="min"):
+    """
+    返回可用的 GPU ID
+    Args:
+        type: sequence, min,
+
+    Returns:
+
+    """
+    import pynvml
+
+    pynvml.nvmlInit()
+
+    time.sleep(5)  # 等待 5s 使得其他程序就绪
+
+    deviceCount = pynvml.nvmlDeviceGetCount()
+    current_gpu_unit_use = []
+    for id in range(deviceCount):
+        handle = pynvml.nvmlDeviceGetHandleByIndex(id)
+        use = pynvml.nvmlDeviceGetUtilizationRates(handle)
+        if use.memory < 80:  # 首先保证有可用内存, 然后选择运行着比较小计算量的GPU
+            # if use.gpu < 90:
+            current_gpu_unit_use.append(use.gpu)
+        else:
+            current_gpu_unit_use.append(100)
+
+    pynvml.nvmlShutdown()
+
+    if current_gpu_unit_use == []:
+        GPU_NUM = str(-1)
+    else:
+        GPU_NUM = str(np.argmin(current_gpu_unit_use))
+    print("GPU used: {}, final choose: {}".format(current_gpu_unit_use, GPU_NUM))
+    return GPU_NUM
+
+
+if __name__ == '__main__':
+    pass
