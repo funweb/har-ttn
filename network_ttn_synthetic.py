@@ -79,7 +79,7 @@ def loss(logits, labels):
     # self.loss =        reduce_mean(-reduce_sum(mul(self.ys, log(self.prediction)), reduction_indices=[0]))
 
     y_ls = tf.nn.log_softmax(logits)
-    cross_entropy = -tf.reduce_mean(tf.reduce_sum(labels * y_ls, reduction_indices=[1]))
+    cross_entropy = -tf.reduce_mean(tf.reduce_sum(labels * y_ls, reduction_indices=[1]))  # 通过拆解， 避免 nan 的问题
 
     return cross_entropy
 
