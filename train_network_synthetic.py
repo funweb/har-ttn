@@ -126,7 +126,7 @@ def train_ttn(dict_cus):
                         }
                     )
 
-                    if loss_value < c_loss:
+                    if loss_value <= c_loss:
                         weights_name = os.path.join(weights_dir, "%s_best_model" % (str(k)))
                         saver.save(sess, weights_name)
                         print(general.colorstr("model saved at: {}".format(weights_name)))
