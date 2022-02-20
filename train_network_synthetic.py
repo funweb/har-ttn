@@ -51,12 +51,8 @@ def train_ttn(dict_cus):
         seq_len = configure.parameters_dict["seq_len"]
 
         with tf.Graph().as_default():
-            x_placeholder, y_placeholder, learning_rate_placeholder = placeholder_inputs(batch_size, num_classes,
-                                                                                         configure.parameters_dict[
-                                                                                             "seq_len"])
-
-            output, sequence_unwarped, gamma, sequence1 = network.mapping(x_placeholder, batch_size,
-                                                                          configure.parameters_dict["seq_len"])
+            x_placeholder, y_placeholder, learning_rate_placeholder = placeholder_inputs(batch_size, num_classes, configure.parameters_dict["seq_len"])
+            output, sequence_unwarped, gamma, sequence1 = network.mapping(x_placeholder, batch_size, configure.parameters_dict["seq_len"])
             loss = network.loss(output, y_placeholder)
 
             var_list_ttn = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='ttn')
@@ -81,10 +77,6 @@ def train_ttn(dict_cus):
 
             for step in range(maxIters * numBatches + 1):
 
-                print("----11")
-                tf.print(output)
-                print("----")
-
                 batchIdx = batchIdx % numBatches
 
                 if batchIdx == 0:
@@ -100,6 +92,9 @@ def train_ttn(dict_cus):
                                          feed_dict={x_placeholder: train_data[trainIdx, :],
                                                     y_placeholder: train_label[trainIdx, :],
                                                     learning_rate_placeholder: learning_rate_1})
+
+                # print("y_placeholder: {}".format(sess.run(y_placeholder)))
+
                 train_loss.append(loss_value)
 
                 if step % 1 == 0:  # #TODO：1000
@@ -113,8 +108,7 @@ def train_ttn(dict_cus):
                     # weights_dir = os.path.join("weights")
                     weights_dir = general.getWeightsDir(configure.parameters_dict, k)
                     general.create_folder(weights_dir, remake=True)
-                    weights_name = os.path.join(weights_dir,
-                                                "%s_%s_gaussians_github_ttn_%s" % (str(k), str(step), str(loss_value)))
+                    weights_name = os.path.join(weights_dir, "%s_%s_gaussians_github_ttn_%s" % (str(k), str(step), str(loss_value)))
                     saver.save(sess, weights_name)
                     print(general.colorstr("model saved at: {}".format(weights_name)))
 
@@ -173,7 +167,7 @@ if __name__ == '__main__':
     # 设置为3：进一步屏蔽ERROR信息
 
     dict_cus = {
-        "batch_size": 32,
+        "batch_size": 1,
         "maxIters": 2000,  # 100000
         "seq_len": 2000,
         "distance_int": 999,

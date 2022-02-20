@@ -82,9 +82,12 @@ def loss(logits, labels):
 
     # eps = 1e-2
     # logits = tf.clip_by_value(logits, eps, 1.0 - eps)
-    # logits = tf.clip_by_value(logits, -100.0, 100.0)
+    # logits = tf.clip_by_value(logits, -100000.0, 100000.0)
     # labels = tf.clip_by_value(labels, -100.0, 100.0)
     # cross_entropy = -tf.reduce_mean(tf.reduce_sum(labels * tf.log(y_clip), reduction_indices=[1]))  # 通过截断， 避免 nan 的问题。。。梯度成为 0 了。。。
+
+    # logits = tf.nn.softmax(logits)
+
     cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=labels))  # 原代码中出现 nan
 
     return cross_entropy
